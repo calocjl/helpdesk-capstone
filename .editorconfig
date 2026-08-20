@@ -1,0 +1,22 @@
+# 편집기가 달라도 서식이 흔들리지 않게 — VS Code 는 EditorConfig 확장이 이 파일을 읽는다.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json,md,http}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{gradlew,*.sh}]
+end_of_line = lf
+
+[gradlew.bat]
+end_of_line = crlf

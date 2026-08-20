@@ -1,0 +1,32 @@
+{
+  // ── 인코딩·개행 — 한글 프롬프트가 깨지지 않게 첫날 맞춰 둔다 ──────────
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // ── Java / Gradle ──────────────────────────────────────────────
+  // 래퍼(gradlew)로 빌드한다 — Gradle 을 따로 설치하지 않아도 된다.
+  "java.import.gradle.enabled": true,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.jdt.ls.vmargs": "-Xmx2G -Dfile.encoding=UTF-8",
+  "java.saveActions.organizeImports": true,
+  "editor.formatOnSave": true,
+  "[java]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+
+  // ── 탐색기에서 빌드 산출물 숨기기 ───────────────────────────────
+  "files.exclude": {
+    "**/.gradle": true,
+    "**/build": true,
+    "**/bin": true
+  },
+
+  // ── 터미널도 UTF-8 (Windows PowerShell 한글 깨짐 방지) ───────────
+  "terminal.integrated.env.windows": {
+    "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
+  }
+}

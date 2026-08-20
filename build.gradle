@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.16'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.skala'
+version = '1.0.0'
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.withType(Test).configureEach { systemProperty 'file.encoding', 'UTF-8' }
+tasks.named('bootRun') { jvmArgs = ['-Dfile.encoding=UTF-8'] }
+
+repositories { mavenCentral() }
+
+// 종합실습 (교안 309~323쪽) — HelpDesk AI
+// RAG(사내 정책 4종) + Tool(주문·티켓) + Memory + Advisor + 관찰가능성 + 폴백 + 보안
+
+ext {
+    springAiVersion = '1.1.8'
+}
+
+dependencies {
+    // ── 웹 · 문서 ──────────────────────────────────────────────
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'   // /swagger-ui.html
+
+    // SSE 스트리밍(Phase 6) — Flux<ServerSentEvent<String>> 반환에 필요하다.
+    // spring-boot-starter-web과 함께 있으면, DispatcherServlet(서블릿 API)이 클래스패스에
+    // 있다는 이유로 Spring Boot가 자동으로 서블릿(MVC/Tomcat) 스택을 선택한다 —
+    // WebFlux(Netty) 서버가 별도로 뜨지 않는다. 컨트롤러 메서드 단위로만 리액티브 타입을 쓰는
+    // 흔한 패턴이다.
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // ── 권한 (Phase 7 — 관리자 API 보호) ─────────────────────────
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // ── AOP (도구 호출 감사 로깅) ──────────────────────────────────
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // ── Spring AI ─────────────────────────────────────────────
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-advisors-vector-store'    // QuestionAnswerAdvisor, SafeGuardAdvisor
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'     // 정책 문서 인제스트
+
+    // pgvector를 쓰려면 아래 주석을 해제하고 docker-compose로 DB를 띄운다(README 참고).
+    // 기본값은 인메모리(SimpleVectorStore)라 추가 인프라 없이 바로 실행된다.
+    // implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+
+    // ── 테스트 ─────────────────────────────────────────────────
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+dependencyManagement {
+    imports { mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}" }
+}
+
+// 골든셋 평가(eval)와 부하테스트(perf)는 실제로 모델을 여러 번 호출한다(시간·비용).
+// 기본 `./gradlew test`에서는 제외하고, `-Peval` 또는 `-Pperf`로 명시할 때만 포함한다.
+tasks.named('test') {
+    useJUnitPlatform {
+        def tags = []
+        if (!project.hasProperty('eval')) tags << 'eval'
+        if (!project.hasProperty('perf')) tags << 'perf'
+        if (tags) excludeTags(*tags)
+    }
+    // 골든셋/부하테스트가 시스템 프로퍼티(-D)로 넘어오면 자식 JVM까지 전달한다.
+    systemProperty 'topK', System.getProperty('topK', '5')
+    systemProperty 'threshold', System.getProperty('threshold', '0.62')
+    systemProperty 'perfRequests', System.getProperty('perfRequests', '20')
+}
+
+springBoot { mainClass = 'com.skala.helpdesk.HelpDeskApplication' }

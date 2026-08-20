@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "종합실습 (셸 환경변수)",
+      "request": "launch",
+      "mainClass": "com.skala.helpdesk.HelpDeskApplication",
+      "projectName": "종합실습_HelpDeskAI",
+      "vmArgs": "-Dfile.encoding=UTF-8",
+      "env": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+      }
+    }
+  ]
+}

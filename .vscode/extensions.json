@@ -1,0 +1,12 @@
+{
+  // VS Code 로 이 폴더를 열면 "권장 확장 설치" 알림이 뜬다 — 전부 설치하면 준비 끝이다.
+  "recommendations": [
+    "vscjava.vscode-java-pack",      // Extension Pack for Java — 언어 서버·디버거·Gradle·테스트
+    "vmware.vscode-boot-dev-pack",   // Spring Boot Extension Pack — Dashboard·Initializr·yml 자동완성
+    "humao.rest-client",             // .http 파일로 API 호출 (curl 대체)
+    "editorconfig.editorconfig",     // .editorconfig 적용
+    "redhat.vscode-yaml",            // application.yml 스키마·검증
+    "ms-azuretools.vscode-docker"    // docker-compose(pgvector) 실행 — 선택
+  ],
+  "unwantedRecommendations": []
+}

@@ -1,0 +1,12 @@
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+out/
+bin/
+*.log
+.env
+.idea/
+*.iml
+# VS Code — 팀 공통 설정(settings·extensions·launch·tasks)은 커밋한다
+.vscode/*.local.json
+.DS_Store

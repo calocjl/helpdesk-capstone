@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: 종합실습_HelpDeskAI
+
+  ai:
+    openai:
+      # 키는 소스에 넣지 않는다.  export OPENAI_API_KEY="sk-..."
+      api-key: ${OPENAI_API_KEY:not-set}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.2
+          max-tokens: 400 # 비기능: 질의당 토큰 상한(출력 토큰) — 314쪽엔 없지만 311쪽 비기능요구 반영
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+    # pgvector를 쓰려면 이 블록의 주석을 해제하고, build.gradle의 pgvector 의존성도 함께 켠다.
+    # vectorstore:
+    #   pgvector:
+    #     initialize-schema: true
+    #     dimensions: 1536
+    #     index-type: HNSW
+    #     distance-type: COSINE_DISTANCE
+
+    chat:
+      observations:
+        log-prompt: false # 운영 습관 — 대화 원문을 로그에 그대로 남기지 않는다
+      client:
+        observations:
+          log-prompt: false
+
+  datasource:
+    # pgvector 프로파일에서만 사용된다. 기본(인메모리) 프로파일에서는 무시된다.
+    url: jdbc:postgresql://localhost:5433/helpdesk
+    username: helpdesk
+    password: helpdesk
+
+server:
+  port: 8080
+
+# helpdesk.* — Phase 1 스펙(314쪽)의 설정 외부화. 코드에 상수를 남기지 않는다.
+helpdesk:
+  rag:
+    top-k: 5
+    threshold: 0.3
+  memory:
+    max: 20
+  primary-model: gpt-4o-mini
+  fallback-model: gpt-4o-mini # 다른 모델을 쓸 수 있으면 여기만 바꾸면 된다(코드 수정 불필요)
+  tenant-id: default # conversationId 규칙(tenant:user:session)의 tenant 값
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    doc-expansion: none
+  default-produces-media-type: application/json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: 종합실습_HelpDeskAI
+
+logging:
+  level:
+    com.skala.helpdesk: DEBUG
+    AI_TOOL_AUDIT: INFO
+    org.springframework.ai.tool: DEBUG

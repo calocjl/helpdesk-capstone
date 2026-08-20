@@ -1,0 +1,25 @@
+# pgvector를 쓰고 싶을 때만 사용한다 (선택사항 — 기본은 인메모리라 이거 없이도 실행된다).
+#
+# 사용법:
+#   1) build.gradle에서 spring-ai-starter-vector-store-pgvector 의존성 주석 해제
+#   2) application.yml에서 spring.ai.vectorstore.pgvector 블록 주석 해제
+#   3) docker compose up -d
+#   4) ./gradlew bootRun
+#
+# 포트를 5433으로 잡은 이유: 로컬에 이미 5432로 다른 postgres가 떠있는 경우와
+# 충돌하지 않게 하기 위함. application.yml의 datasource.url도 5433으로 맞춰뒀다.
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: helpdesk-pgvector
+    environment:
+      POSTGRES_DB: helpdesk
+      POSTGRES_USER: helpdesk
+      POSTGRES_PASSWORD: helpdesk
+    ports:
+      - "5433:5432"
+    volumes:
+      - helpdesk-pgdata:/var/lib/postgresql/data
+
+volumes:
+  helpdesk-pgdata:
